@@ -122,6 +122,12 @@
     margin-bottom:28px;
   }
 
+  .roster-heading{
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:16px;
+    font-weight:600;
+  }
+
   .roster-intro p{
     max-width:56ch;
     color:var(--ink-soft);
@@ -427,7 +433,7 @@
   <!-- ROSTER VIEW -->
   <div class="view active" id="view-roster">
     <div class="roster-intro">
-      <h2 style="font-size:16px;font-family:'IBM Plex Sans',sans-serif;font-weight:600;">Select a team member</h2>
+      <h2 class="roster-heading">Select a team member</h2>
       <p>Open a member's file to see the problem statements they've put forward, then open any statement for the full brief.</p>
     </div>
     <div class="roster-grid" id="roster-grid"></div>
@@ -435,13 +441,13 @@
 
   <!-- DOCKET VIEW (member's problem list) -->
   <div class="view" id="view-docket">
-    <button class="back-link" id="btn-back-roster">
+    <button class="back-link" id="btn-back-roster" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
       Back to team
     </button>
     <div class="docket-head">
       <div class="kicker" id="docket-role"></div>
-      <h2 id="docket-name"></h2>
+      <h2 id="docket-name" aria-live="polite">Team member</h2>
       <div class="count" id="docket-count"></div>
     </div>
     <div class="docket-list" id="docket-list"></div>
@@ -449,7 +455,7 @@
 
   <!-- DETAIL VIEW (single problem statement) -->
   <div class="view" id="view-detail">
-    <button class="back-link" id="btn-back-docket">
+    <button class="back-link" id="btn-back-docket" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
       <span id="back-docket-label">Back to file</span>
     </button>
@@ -503,6 +509,17 @@
 <script>
 (function(){
   var DATA = JSON.parse(document.getElementById('app-data').textContent);
+  DATA.problemStatements['26032'] = {
+    id: '26032',
+    title: 'Farmers often face long waiting times, lack of information regarding procurement schedules, and uncertainty about procurement status.',
+    description: 'Expected Solution:\n\nDevelop a platform that:\n\n• Enables farmer registration and slot booking.\n• Provides real-time queue management.\n• Sends SMS/app notifications.\n• Tracks procurement and payment status.\n• Reduces congestion and waiting time at procurement centres.',
+    organization: 'Ministry of Consumer Affairs, Food & Public Distribution',
+    department: 'Department of Consumer Affairs (DoCA)',
+    category: 'Software',
+    theme: 'Smart Automation',
+    expectedOutcome: 'Develop a platform that enables farmer registration and slot booking, provides real-time queue management and SMS/app notifications, tracks procurement and payment status, and reduces congestion and waiting time at procurement centres.',
+    domains: ['Farmer Registration & Slot Booking', 'Real-Time Queue Management', 'SMS / App Notifications', 'Procurement & Payment Tracking']
+  };
   var members = DATA.members;
   var psById = DATA.problemStatements;
 
@@ -530,6 +547,7 @@
     members.forEach(function(m){
       var isBusy = m.status === 'busy';
       var card = document.createElement('button');
+      card.type = 'button';
       card.className = 'member-card' + (isBusy ? ' is-busy' : '');
 
       var roleLine = document.createElement('div');
@@ -573,9 +591,12 @@
     member.psIds.forEach(function(id){
       var ps = psById[id];
       var row = document.createElement('button');
+      row.type = 'button';
 
       if (!ps) {
         row.className = 'docket-row is-missing';
+        row.disabled = true;
+        row.setAttribute('aria-label', 'Problem statement ' + id + ' is unavailable');
         row.innerHTML =
           '<div class="docket-id mono">' + id + '</div>' +
           '<div>' +
