@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIH Team Case File</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#182338;
+    --ink-soft:#3c4a63;
+    --paper:#F1EFE8;
+    --paper-raised:#FBFAF6;
+    --rule:#CFC9BA;
+    --saffron:#C97A22;
+    --saffron-soft:#EFD9B8;
+    --pine:#2C6B4F;
+    --pine-soft:#D9E6DC;
+    --rust:#A23B32;
+    --rust-soft:#EAD3CC;
+    --shadow: 0 1px 0 rgba(24,35,56,0.06);
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{
+    min-height:100vh;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+
+  .mono{
+    font-family:'IBM Plex Mono', monospace;
+  }
+
+  a{color:inherit;}
+
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+
+  /* ---------- Shell ---------- */
+
+  .shell{
+    max-width:920px;
+    margin:0 auto;
+    padding:0 24px 96px;
+  }
+
+  .masthead{
+    padding:40px 0 28px;
+    border-bottom:2px solid var(--ink);
+    margin-bottom:36px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+
+  .masthead-title{
+    font-size:clamp(28px, 4vw, 38px);
+    line-height:1.05;
+  }
+
+  .masthead-sub{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin-top:8px;
+    max-width:46ch;
+    line-height:1.5;
+  }
+
+  .masthead-ref{
+    font-size:12px;
+    color:var(--ink-soft);
+    text-align:right;
+    line-height:1.6;
+    white-space:nowrap;
+  }
+
+  /* ---------- Views ---------- */
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .back-link{
+    background:none;
+    border:none;
+    padding:0;
+    color:var(--ink-soft);
+    font-size:14px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:28px;
+    transition:color .15s ease;
+  }
+  .back-link:hover{color:var(--ink);}
+  .back-link svg{width:14px;height:14px;flex:none;}
+
+  /* ---------- Roster ---------- */
+
+  .roster-intro{
+    margin-bottom:28px;
+  }
+
+  .roster-intro p{
+    max-width:56ch;
+    color:var(--ink-soft);
+    line-height:1.6;
+    font-size:15px;
+    margin:10px 0 0;
+  }
+
+  .roster-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:1px;
+    background:var(--rule);
+    border:1px solid var(--rule);
+  }
+
+  @media (max-width:680px){
+    .roster-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:440px){
+    .roster-grid{grid-template-columns:1fr;}
+  }
+
+  .member-card{
+    background:var(--paper-raised);
+    border:none;
+    text-align:left;
+    padding:26px 22px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    min-height:168px;
+    position:relative;
+    transition:background .15s ease;
+  }
+
+  .member-card:not(.is-busy):hover{
+    background:#fff;
+  }
+
+  .member-card:not(.is-busy){
+    cursor:pointer;
+  }
+
+  .member-role{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.09em;
+    color:var(--saffron);
+    font-weight:600;
+  }
+
+  .member-card.is-busy .member-role{color:var(--rust);}
+
+  .member-name{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    line-height:1.15;
+  }
+
+  .member-meta{
+    margin-top:auto;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+
+  .member-card.is-busy{
+    background:repeating-linear-gradient(135deg, var(--paper-raised) 0 10px, #ece8de 10px 11px);
+  }
+
+  .member-card.is-busy .member-name{color:var(--ink-soft);}
+
+  .status-dot{
+    display:inline-block;
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--pine);
+    margin-right:6px;
+  }
+  .is-busy .status-dot{background:var(--rust);}
+
+  /* ---------- Docket (member's list) ---------- */
+
+  .docket-head{
+    margin-bottom:30px;
+  }
+
+  .docket-head .kicker{
+    font-size:12px;
+    color:var(--saffron);
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+  }
+
+  .docket-head h2{
+    font-size:30px;
+    margin-top:6px;
+  }
+
+  .docket-head .count{
+    color:var(--ink-soft);
+    font-size:14px;
+    margin-top:6px;
+  }
+
+  .docket-list{
+    border-top:1px solid var(--rule);
+  }
+
+  .docket-row{
+    width:100%;
+    background:none;
+    border:none;
+    border-bottom:1px solid var(--rule);
+    padding:20px 4px;
+    display:grid;
+    grid-template-columns:88px 1fr 20px;
+    align-items:start;
+    gap:18px;
+    text-align:left;
+    transition:background .15s ease, padding-left .15s ease;
+  }
+
+  .docket-row:hover{
+    background:var(--paper-raised);
+    padding-left:12px;
+  }
+
+  .docket-id{
+    font-size:13px;
+    color:var(--saffron);
+    padding-top:2px;
+  }
+
+  .docket-title{
+    font-size:16px;
+    font-weight:500;
+    line-height:1.4;
+  }
+
+  .docket-org{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-top:5px;
+    line-height:1.5;
+  }
+
+  .docket-arrow{
+    width:16px;height:16px;
+    margin-top:4px;
+    color:var(--ink-soft);
+  }
+
+  .docket-row.is-missing{
+    cursor:default;
+  }
+  .docket-row.is-missing:hover{
+    background:none;
+    padding-left:4px;
+  }
+  .docket-row.is-missing .docket-title{color:var(--rust);}
+  .docket-row.is-missing .docket-org{font-style:italic;}
+
+  /* ---------- Detail ---------- */
+
+  .case-letterhead{
+    border:1px solid var(--ink);
+    padding:26px 28px;
+    margin-bottom:34px;
+    background:var(--paper-raised);
+  }
+
+  .case-id{
+    font-size:12px;
+    color:var(--saffron);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+
+  .case-title{
+    font-size:clamp(22px, 3.4vw, 30px);
+    line-height:1.2;
+    margin-bottom:20px;
+  }
+
+  .case-fields{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:16px 32px;
+    border-top:1px solid var(--rule);
+    padding-top:18px;
+  }
+
+  @media (max-width:560px){
+    .case-fields{grid-template-columns:1fr;}
+  }
+
+  .case-field-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+
+  .case-field-value{
+    font-size:14px;
+    line-height:1.5;
+  }
+
+  .doc-section{
+    margin-bottom:38px;
+  }
+
+  .doc-section h3{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--rule);
+  }
+
+  .doc-body{
+    max-width:68ch;
+    font-size:15.5px;
+    line-height:1.75;
+    color:#232f47;
+    white-space:pre-line;
+  }
+
+  .outcome-block{
+    background:var(--pine-soft);
+    border-left:3px solid var(--pine);
+    padding:20px 22px;
+    max-width:68ch;
+  }
+
+  .outcome-block .doc-body{
+    color:#1d3b2c;
+  }
+
+  .domain-tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  .domain-tag{
+    font-size:13px;
+    padding:7px 14px;
+    background:var(--saffron-soft);
+    border:1px solid var(--saffron);
+    color:#6b4413;
+    border-radius:2px;
+  }
+
+  /* ---------- Empty / busy states ---------- */
+
+  .empty-state{
+    padding:60px 20px;
+    text-align:center;
+    color:var(--ink-soft);
+  }
+
+  .empty-state h3{
+    font-size:20px;
+    color:var(--ink);
+    margin-bottom:10px;
+  }
+
+  .empty-state p{
+    max-width:44ch;
+    margin:0 auto;
+    line-height:1.6;
+    font-size:14px;
+  }
+
+  footer{
+    margin-top:60px;
+    padding-top:20px;
+    border-top:1px solid var(--rule);
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div>
+      <div class="masthead-title">SIH Team Case File</div>
+      <div class="masthead-sub">Six team members, their recommended Smart India Hackathon problem statements, and what each one asks for.</div>
+    </div>
+    <div class="masthead-ref mono">SIH 2026<br>INTERNAL REFERENCE</div>
+  </div>
+
+  <!-- ROSTER VIEW -->
+  <div class="view active" id="view-roster">
+    <div class="roster-intro">
+      <h2 style="font-size:16px;font-family:'IBM Plex Sans',sans-serif;font-weight:600;">Select a team member</h2>
+      <p>Open a member's file to see the problem statements they've put forward, then open any statement for the full brief.</p>
+    </div>
+    <div class="roster-grid" id="roster-grid"></div>
+  </div>
+
+  <!-- DOCKET VIEW (member's problem list) -->
+  <div class="view" id="view-docket">
+    <button class="back-link" id="btn-back-roster">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to team
+    </button>
+    <div class="docket-head">
+      <div class="kicker" id="docket-role"></div>
+      <h2 id="docket-name"></h2>
+      <div class="count" id="docket-count"></div>
+    </div>
+    <div class="docket-list" id="docket-list"></div>
+  </div>
+
+  <!-- DETAIL VIEW (single problem statement) -->
+  <div class="view" id="view-detail">
+    <button class="back-link" id="btn-back-docket">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      <span id="back-docket-label">Back to file</span>
+    </button>
+
+    <div class="case-letterhead">
+      <div class="case-id mono" id="detail-id"></div>
+      <div class="case-title" id="detail-title"></div>
+      <div class="case-fields">
+        <div>
+          <div class="case-field-label">Ministry / Organization</div>
+          <div class="case-field-value" id="detail-org"></div>
+        </div>
+        <div>
+          <div class="case-field-label">Department</div>
+          <div class="case-field-value" id="detail-dept"></div>
+        </div>
+        <div>
+          <div class="case-field-label">Category</div>
+          <div class="case-field-value" id="detail-category"></div>
+        </div>
+        <div>
+          <div class="case-field-label">Theme</div>
+          <div class="case-field-value" id="detail-theme"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <h3>Problem Statement</h3>
+      <div class="doc-body" id="detail-description"></div>
+    </div>
+
+    <div class="doc-section">
+      <h3>Expected Outcome</h3>
+      <div class="outcome-block">
+        <div class="doc-body" id="detail-outcome"></div>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <h3>Domains Required</h3>
+      <div class="domain-tags" id="detail-domains"></div>
+    </div>
+  </div>
+
+  <footer>Sourced from the team's SIH recommendation list. Problem statement text is reproduced unedited from the original brief.</footer>
+
+</div>
+
+<script type="application/json" id="app-data">{"members": [{"name": "Pranjal", "role": "Team Lead", "status": "active", "psIds": ["26047", "26042"]}, {"name": "Utkarsh", "role": "Member", "status": "active", "psIds": ["26070", "26101", "26104", "26122", "26188"]}, {"name": "Devanshi", "role": "Member", "status": "active", "psIds": ["26044", "26133", "26032"]}, {"name": "Anuj", "role": "Member", "status": "active", "psIds": ["26017", "26043", "26063", "26101"]}, {"name": "Paridhi", "role": "Member", "status": "active", "psIds": ["26043", "26068", "26103"]}, {"name": "Sumit Yogi", "role": "Member", "status": "busy", "note": "Currently with the placement cell", "psIds": []}], "problemStatements": {"26047": {"id": "26047", "title": "Patient Case-Taking Software", "description": "Background:\n\n1.1 The Clinical History-Taking Bottleneck in Indian Hospitals History taking — the structured elicitation of a patient's presenting complaints, history of present illness, past medical and surgical history, drug and allergy history, family and personal history, and a review of systems — is the single most important diagnostic activity in clinical medicine. Classical teaching holds that a well-conducted history yields the correct diagnosis in 70–80% of cases, even before examination or investigation. Yet in India's overburdened public hospital outpatient departments (OPDs), the time available for this critical interaction has collapsed to unsustainable levels.\n\nIndia operates one of the most patient-dense healthcare systems in the world. Tertiary government hospitals and apex institutions routinely register 4,000–10,000 OPD patients per day, with a doctor-to-patient consultation time frequently reported between 2 and 5 minutes — among the shortest globally (study published in BMJ Open, 2017, across 67 countries placed India's average primary-care consultation at just over 2 minutes). Within this window, the physician must simultaneously elicit history, examine the patient, revie [truncated]
+<script>
+(function(){
+  var DATA = JSON.parse(document.getElementById('app-data').textContent);
+  var members = DATA.members;
+  var psById = DATA.problemStatements;
+
+  var viewRoster = document.getElementById('view-roster');
+  var viewDocket = document.getElementById('view-docket');
+  var viewDetail = document.getElementById('view-detail');
+  var rosterGrid = document.getElementById('roster-grid');
+  var docketList = document.getElementById('docket-list');
+
+  var currentMember = null;
+
+  function showView(view){
+    [viewRoster, viewDocket, viewDetail].forEach(function(v){ v.classList.remove('active'); });
+    view.classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function arrowSVG(){
+    return '<svg class="docket-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
+  }
+
+  // ---------- Roster ----------
+  function renderRoster(){
+    rosterGrid.innerHTML = '';
+    members.forEach(function(m){
+      var isBusy = m.status === 'busy';
+      var card = document.createElement('button');
+      card.className = 'member-card' + (isBusy ? ' is-busy' : '');
+
+      var roleLine = document.createElement('div');
+      roleLine.className = 'member-role';
+      roleLine.textContent = m.role;
+      card.appendChild(roleLine);
+
+      var nameLine = document.createElement('div');
+      nameLine.className = 'member-name';
+      nameLine.textContent = m.name;
+      card.appendChild(nameLine);
+
+      var meta = document.createElement('div');
+      meta.className = 'member-meta';
+      if (isBusy) {
+        meta.innerHTML = '<span class="status-dot"></span>' + (m.note || 'Unavailable');
+      } else {
+        var n = m.psIds.length;
+        meta.innerHTML = '<span class="status-dot"></span>' + n + (n === 1 ? ' problem statement' : ' problem statements');
+      }
+      card.appendChild(meta);
+
+      if (!isBusy) {
+        card.addEventListener('click', function(){ openMember(m); });
+      } else {
+        card.disabled = true;
+      }
+      rosterGrid.appendChild(card);
+    });
+  }
+
+  // ---------- Docket (member view) ----------
+  function openMember(member){
+    currentMember = member;
+    document.getElementById('docket-role').textContent = member.role;
+    document.getElementById('docket-name').textContent = member.name;
+    var n = member.psIds.length;
+    document.getElementById('docket-count').textContent = n + (n === 1 ? ' recommended problem statement' : ' recommended problem statements');
+
+    docketList.innerHTML = '';
+    member.psIds.forEach(function(id){
+      var ps = psById[id];
+      var row = document.createElement('button');
+
+      if (!ps) {
+        row.className = 'docket-row is-missing';
+        row.innerHTML =
+          '<div class="docket-id mono">' + id + '</div>' +
+          '<div>' +
+            '<div class="docket-title">Problem statement not in source data</div>' +
+            '<div class="docket-org">This ID was listed for ' + member.name + ' but no matching brief was found in the provided file.</div>' +
+          '</div>' +
+          '<div></div>';
+      } else {
+        row.className = 'docket-row';
+        row.innerHTML =
+          '<div class="docket-id mono">' + ps.id + '</div>' +
+          '<div>' +
+            '<div class="docket-title">' + escapeHTML(ps.title) + '</div>' +
+            '<div class="docket-org">' + escapeHTML(ps.organization) + ' &mdash; ' + escapeHTML(ps.department) + '</div>' +
+          '</div>' +
+          arrowSVG();
+        row.addEventListener('click', function(){ openDetail(ps, member); });
+      }
+      docketList.appendChild(row);
+    });
+
+    showView(viewDocket);
+  }
+
+  // ---------- Detail (single problem statement) ----------
+  function openDetail(ps, member){
+    document.getElementById('back-docket-label').textContent = 'Back to ' + member.name + "'s file";
+    document.getElementById('detail-id').textContent = 'CASE ' + ps.id;
+    document.getElementById('detail-title').textContent = ps.title;
+    document.getElementById('detail-org').textContent = ps.organization || '—';
+    document.getElementById('detail-dept').textContent = ps.department || '—';
+    document.getElementById('detail-category').textContent = ps.category || '—';
+    document.getElementById('detail-theme').textContent = ps.theme || '—';
+    document.getElementById('detail-description').textContent = ps.description;
+    document.getElementById('detail-outcome').textContent = ps.expectedOutcome;
+
+    var domainWrap = document.getElementById('detail-domains');
+    domainWrap.innerHTML = '';
+    (ps.domains || []).forEach(function(d){
+      var tag = document.createElement('span');
+      tag.className = 'domain-tag';
+      tag.textContent = d;
+      domainWrap.appendChild(tag);
+    });
+    if (!ps.domains || ps.domains.length === 0) {
+      domainWrap.innerHTML = '<span class="doc-body" style="font-size:14px;">No domains listed.</span>';
+    }
+
+    showView(viewDetail);
+  }
+
+  function escapeHTML(str){
+    var div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+  }
+
+  document.getElementById('btn-back-roster').addEventListener('click', function(){
+    showView(viewRoster);
+  });
+  document.getElementById('btn-back-docket').addEventListener('click', function(){
+    if (currentMember) openMember(currentMember);
+  });
+
+  renderRoster();
+})();
+</script>
+</body>
+</html>
